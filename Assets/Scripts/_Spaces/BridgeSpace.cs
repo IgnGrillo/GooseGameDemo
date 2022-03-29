@@ -2,12 +2,10 @@ using UnityEngine;
 
 public class BridgeSpace : BasicSpace
 {
-    public BridgeSpace(IBoard board) : base(board)
+    public override string Play()
     {
-    }
-    
-    public override void PlaySpace()
-    {
-        Debug.Log($"The Bridge: Go to space {board.GetSpaceIndex(this) + 6}");
+        var log = $"The Bridge: Go to space {_spaceIndex + 6}";
+        Debug.Log(log);
+        return log;
     }
 }

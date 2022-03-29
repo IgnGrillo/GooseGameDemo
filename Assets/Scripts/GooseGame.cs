@@ -1,131 +1,132 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public class GooseGame : MonoBehaviour
 {
-    [Header("Game SetUp Fields")]
-    [SerializeField] private int amountOfPlayers = 1;
-    [SerializeField] private int amountOfTiles = 63;
+    private IBoard _board;
+    private List<IPlayer> _players;
+    private IPlayer _currrentPlayer;
+    private LinkedList<IPlayer> _playersTurnOrder;
+    private Action _onGameStart;
+    private Action _onGameFinish;
     
-    public static GooseGame Instance;
-    
-    private LinkedList<IPlayer> players;
-    private IBoard currentBoard;
-    private LinkedListNode<IPlayer> currrentPlayer;
-    private Action onGameFinish;
+    public IBoard Board
+    {
+        get => _board;
+        private set => _board = value;
+    }
 
-    public int AmountOfTiles => amountOfTiles;
+    public List<IPlayer> Players
+    {
+        get => _players;
+        private set => _players = value;
+    }
+
+    public Action OnGameStart
+    {
+        get => _onGameStart;
+        set => _onGameStart = value;
+    }
+    
     public Action OnGameFinish
     {
-        get => onGameFinish;
-        set => onGameFinish = value;
+        get => _onGameFinish;
+        set => _onGameFinish = value;
     }
-
-    private void Awake()
+    
+    public void CreateBoard()
     {
-        SetUpSingleton();
+        Board = new Board();
+        Board.SetUpSpaces(new BasicTileBuilder());
     }
 
+    public void AddPlayer(IPlayer player)
+    {
+        if (Players == null)
+        {
+            _players = new List<IPlayer>();
+        }
+        if (_playersTurnOrder == null)
+        {
+            _playersTurnOrder = new LinkedList<IPlayer>();
+        }
+        
+        Players.Add(player);
+        _playersTurnOrder.AddLast(player);
+    }
+
+    public void SetStartingPLayer(IPlayer startingPlayer)
+    {
+        _currrentPlayer = startingPlayer;
+    }
+    
     [ContextMenu("Start Board Game %g")]
     public void StartGame()
     {
         SetUpGame();
+        _onGameStart?.Invoke();
         StartFirstPlayerTurn();
     }
     
     public void EndGame()
     {
-        UnsubscribeFromPlayerEvents();
-        onGameFinish?.Invoke();
-    }
-    
-    //TODO: Quemar esto
-    public ISpace GetNextSpace(ISpace space, int spaceDistance)
-    {
-        return currentBoard.GetNextSpace(space, spaceDistance);
-    }
-    
-    private void SetUpSingleton()
-    {
-        if (Instance == null)
-        {
-            Instance = this;
-        }
-        else
-        {
-            Destroy(this);
-        }
+        GameEvents.OnGameFinish -= EndGame;
+        UnsubscribeFromPlayerEvents();//Esto tendria que estar subsctripto al ongame finish
+        _onGameFinish?.Invoke();
     }
 
     private void SetUpGame()
     {
-        CreateBoard();
-        CreatePlayers();
         SetUpPlayersInitialPosition();
         SubscribeToPlayerEvents();
-    }
-
-    private void CreateBoard()
-    {
-        var tileBuilder = new BasicTileBuilder();
-        currentBoard = new Board(tileBuilder);
-    }
-
-    private void CreatePlayers()
-    {
-        players = new LinkedList<IPlayer>();
-
-        for (int i = 0; i < amountOfPlayers; i++)
-        {
-            players.AddLast(new AIPlayer());
-        }
+        SubscribeToGameFinish();
     }
 
     private void SetUpPlayersInitialPosition()
     {
-        for (var currentPlayer = players.First; currentPlayer != null; currentPlayer = currentPlayer.Next)
+        for (int i = 0; i < _players.Count; i++)
         {
-            currentPlayer.Value.SetPlayerInitialSpace(currentBoard.GetInitialSpace());
+            _players[i].CurrentSpace = Board.GetInitialSpace();     
         }
     }
 
     private void SubscribeToPlayerEvents()
     {
-        var currentNode = players.First;
-
-        while (currentNode != null)
+        for (int i = 0; i < _players.Count; i++)
         {
-            currentNode.Value.OnTurnFinish += GoToNextPlayerTurn;
-            currentNode = currentNode.Next;
+            _players[i].OnTurnFinish += GoToNextPlayerTurn;
         }
+    }
+
+    private void SubscribeToGameFinish()
+    {
+        GameEvents.OnGameFinish += EndGame;
     }
     
     private void UnsubscribeFromPlayerEvents()
     {
-        var currentNode = players.First;
-
-        while (currentNode != null )
+        for (int i = 0; i < _players.Count; i++)
         {
-            currentNode.Value.OnTurnFinish -= GoToNextPlayerTurn;
-            currentNode = currentNode.Next;
+            _players[i].OnTurnFinish -= GoToNextPlayerTurn;
         }
     }
 
     private void StartFirstPlayerTurn()
     {
-        currrentPlayer = players.First;
-        currrentPlayer.Value.PlayTurn();
+        _currrentPlayer.PlayTurn();
     }
 
     private void GoToNextPlayerTurn()
     {
-        currrentPlayer = GetNextPlayer();
-        currrentPlayer.Value.PlayTurn();
+        _currrentPlayer = GetNextPlayer();
+        _currrentPlayer.PlayTurn();
     }
 
-    private LinkedListNode<IPlayer> GetNextPlayer()
+    private IPlayer GetNextPlayer()
     {
-        return currrentPlayer.Next ?? players.First;
+        var currentPlayerNode = _playersTurnOrder.Find(_currrentPlayer);
+        return currentPlayerNode.Next  != null? currentPlayerNode.Next.Value : _playersTurnOrder.First.Value;
     }
 }

@@ -2,48 +2,53 @@ using System.Collections.Generic;
 
 public class Board : IBoard
 {
-    private LinkedList<ISpace> spaces;
+    private LinkedList<ISpace> _spaces;
 
-    public Board(ITileBuilder tileBuilder)
+    public LinkedList<ISpace> Spaces
     {
-        SetUpBoard(tileBuilder);
+        get => _spaces;
+        private set => _spaces = value;
     }
-    
+
+    public void SetUpSpaces(ITileBuilder tileBuilder)
+    {
+        Spaces = tileBuilder.GetBoardSpaces(this);
+    }
+
     public ISpace GetInitialSpace()
     {
-        return spaces.First.Value;
+        return Spaces.First.Value;
+    }
+
+    public ISpace GetLastSpace()
+    {
+        return Spaces.Last.Value;
     }
 
     public ISpace GetNextSpace(ISpace space, int spaceDistance)
     {
-        LinkedListNode<ISpace> currentSpace = spaces.Find(space);
+        LinkedListNode<ISpace> currentSpace = Spaces.Find(space);
         int counter = 0;
         
         while (currentSpace != null && counter < spaceDistance)
         {
             counter++;
-            currentSpace = currentSpace.Next;
+            if (!TrySetNextSpace(ref currentSpace)) break;
         }
         
         return currentSpace.Value;
     }
 
-    public int GetSpaceIndex(ISpace space)
+    private bool TrySetNextSpace(ref LinkedListNode<ISpace> currentSpace)
     {
-        int counter = 0;
-        var currentElement = spaces.First;
-        
-        while (currentElement.Value != space && currentElement.Value != null)
+        if (currentSpace.Next != null)
         {
-            currentElement = currentElement.Next;
-            counter++;
+            currentSpace = currentSpace.Next;
+            return true;
         }
-
-        return counter;
-    }
-    
-    private void SetUpBoard(ITileBuilder tileBuilder)
-    {
-        spaces = tileBuilder.GetBoardTiles(this);
+        else
+        {
+            return false;
+        }
     }
 }

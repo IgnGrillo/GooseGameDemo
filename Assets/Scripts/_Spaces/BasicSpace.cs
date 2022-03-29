@@ -2,17 +2,25 @@ using UnityEngine;
 
 public class BasicSpace : ISpace
 {
-    protected IBoard board;
+    protected int _spaceIndex;
+    protected IBoard _board;
 
-    public IBoard Board => board;
-    
-    public BasicSpace(IBoard board)
+    public int SpaceIndex
     {
-        this.board = board;
+        get => _spaceIndex;
+        set => _spaceIndex = value;
     }
 
-    public virtual void PlaySpace()
+    public IBoard Board
     {
-        Debug.Log($"Stay in Space {board.GetSpaceIndex(this)}");
+        get => _board;
+        set => _board = value;
+    }
+
+    public virtual string Play()
+    {
+        var log = $"Stay in Space {_spaceIndex}";
+        Debug.Log(log);
+        return log;
     }
 }

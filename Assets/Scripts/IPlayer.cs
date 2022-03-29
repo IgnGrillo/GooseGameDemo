@@ -2,9 +2,10 @@ using System;
 
 public interface IPlayer
 {
-    bool CanPlayTurn { get; set; }
+    IBoard CurrentBoard { get; set; }
     ISpace CurrentSpace { get; set; }
+    Action OnTurnStart { get; set; }
     Action OnTurnFinish { get; set; }
-    void SetPlayerInitialSpace(ISpace space);
     void PlayTurn();
+    void MovePlayerForward(int amountOfSpacesToMove);
 }

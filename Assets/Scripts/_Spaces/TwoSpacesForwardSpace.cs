@@ -2,12 +2,10 @@ using UnityEngine;
 
 public class TwoSpacesForwardSpace : BasicSpace
 {
-    public TwoSpacesForwardSpace(IBoard board) : base(board)
+    public override string Play()
     {
-    }
-    
-    public override void PlaySpace()
-    {
-        Debug.Log("Move two spaces forward.");
+        var log = "Move two spaces forward.";
+        Debug.Log(log);
+        return log;
     }
 }

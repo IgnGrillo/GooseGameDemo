@@ -1,5 +1,6 @@
 public interface ISpace
 {
-   IBoard Board { get;}
-   void PlaySpace();
+   int SpaceIndex { get; set; }
+   IBoard Board { get; set; }
+   string Play();
 }

@@ -4,7 +4,7 @@ public class RollTheDiceCommand : ICommand
     {
         var diceNumber = Dice.RollDice();
         diceNumber = 1; //The exercise requires to move a single space at a time
-        executer.CurrentSpace = GooseGame.Instance.GetNextSpace(executer.CurrentSpace, diceNumber);
-        executer.CurrentSpace.PlaySpace();
+        executer.MovePlayerForward(1);
+        executer.CurrentSpace.Play();
     }
 }

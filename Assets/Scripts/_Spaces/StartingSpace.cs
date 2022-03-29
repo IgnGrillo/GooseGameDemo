@@ -4,8 +4,10 @@ using UnityEngine;
 
 public class StartingSpace : BasicSpace
 {
-    public StartingSpace(IBoard board) : base(board)
+    public override string Play()
     {
-        Debug.Log("Start Position");
+        var message = "Start Position";
+        Debug.Log(message);
+        return message;
     }
 }

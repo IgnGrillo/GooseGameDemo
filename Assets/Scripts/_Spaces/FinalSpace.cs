@@ -1,15 +1,30 @@
+using System;
 using UnityEngine;
 
 public class FinalSpace : BasicSpace
 {
-    public FinalSpace(IBoard board) : base(board)
+    public override string Play()
     {
+        var fullMessage = GetSpaceMessage();
+        LogMessage(fullMessage);
+        EndGame();
+        
+        return fullMessage;
     }
 
-    public override void PlaySpace()
+    private string GetSpaceMessage()
     {
-        base.PlaySpace();
-        Debug.Log("End Position");
-        GooseGame.Instance.EndGame(); 
+        var additionalLog = $"{Environment.NewLine}End Position";
+        return $"{base.Play()}{additionalLog}";
+    }
+
+    private void LogMessage(string message)
+    {
+        Debug.Log(message);
+    }
+
+    private void EndGame()
+    {
+        GameEvents.EndGame();
     }
 }
