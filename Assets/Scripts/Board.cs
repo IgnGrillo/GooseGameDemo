@@ -30,7 +30,7 @@ public class Board : IBoard
         LinkedListNode<ISpace> currentSpace = Spaces.Find(space);
         int counter = 0;
         
-        while (currentSpace != null && counter < spaceDistance)
+        while (counter < spaceDistance)
         {
             counter++;
             if (!TrySetNextSpace(ref currentSpace)) break;
@@ -39,7 +39,7 @@ public class Board : IBoard
         return currentSpace.Value;
     }
 
-    private bool TrySetNextSpace(ref LinkedListNode<ISpace> currentSpace)
+    private bool TrySetNextSpace(ref LinkedListNode<ISpace> currentSpace)//Revisar esto
     {
         if (currentSpace.Next != null)
         {
