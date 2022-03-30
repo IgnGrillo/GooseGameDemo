@@ -7,5 +7,6 @@ public interface IPlayer
     Action OnTurnStart { get; set; }
     Action OnTurnFinish { get; set; }
     void PlayTurn();
+    void PlayCurrentSpace();
     void MovePlayerForward(int amountOfSpacesToMove);
 }
