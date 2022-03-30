@@ -58,7 +58,7 @@ public class PlayerShould
 
     private void GivenABasicSpaceAsCurrentSpace()
     {
-        _currentPlayer.CurrentSpace = new BasicSpace();
+        _currentPlayer.CurrentSpace = new Space(new BasicSpaceRule());
     }
 
     private void GivenABoardAsCurrentBoard()

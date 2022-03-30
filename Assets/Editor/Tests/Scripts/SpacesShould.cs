@@ -33,7 +33,7 @@ public class SpacesShould
     [Test]
     public void DisplayMessageWhenPlayBridge()
     {
-        GivenBridgeSpaceWithIndex(_startingSpaceIndex);
+        GivenBridgeSpace();
         WhenCurrentSpacePlay();
         ThenAssertSpaceResponse($"The Bridge: Go to space {_startingSpaceIndex + 6}");
     }
@@ -41,7 +41,7 @@ public class SpacesShould
     [Test]
     public void DisplayMessageWhenPlayFinalSpace()
     {
-        GivenFinalSpaceWithIndex(_startingSpaceIndex);
+        GivenFinalSpace();
         WhenCurrentSpacePlay();
         ThenAssertSpaceResponse($"Stay in Space {_startingSpaceIndex}{Environment.NewLine}End Position");
     }
@@ -49,7 +49,7 @@ public class SpacesShould
     [Test]
     public void CallGameFinishWhenPlayFinalSpace()
     {
-        GivenFinalSpaceWithIndex(_startingSpaceIndex);
+        GivenFinalSpace();
         GivenFinishGameEventSubscription();
         WhenCurrentSpacePlay(); 
         ThenAssertEndGameFlagRaisedState();
@@ -59,7 +59,7 @@ public class SpacesShould
     [Test]
     public void DisplayMessageWhenPlayStartingSpace()
     {
-        GivenStartingSpaceWithIndex(_startingSpaceIndex);
+        GivenStartingSpace();
         WhenCurrentSpacePlay();
         ThenAssertSpaceResponse("Start Position");
     }
@@ -67,7 +67,7 @@ public class SpacesShould
     [Test]
     public void DisplayMessageWhenPlayTwoSpacesForwardSpace()
     {
-        GivenTwoSpacesForwardWithIndex(_startingSpaceIndex);
+        GivenTwoSpacesForward();
         WhenCurrentSpacePlay();
         ThenAssertSpaceResponse("Move two spaces forward.");
     }
@@ -109,7 +109,7 @@ public class SpacesShould
         var spaces = new List<ISpace>();
         for (int i = 0; i < xAmount; i++)
         {
-            var space = new BasicSpace
+            var space = new Space(new BasicSpaceRule())
             {
                 SpaceIndex = i
             };
@@ -120,58 +120,54 @@ public class SpacesShould
     
     private void GivenBasicSpaceWithIndex(int spaceIndex)
     {
-        _currentSpace = new BasicSpace();
+        _currentSpace = new Space(new BasicSpaceRule());
         _currentSpace.SpaceIndex = spaceIndex;
     }
     
-    private void GivenBridgeSpaceWithIndex(int spaceIndex)
+    private void GivenBridgeSpace()
     {
-        _currentSpace = new BridgeSpace();
-        _currentSpace.SpaceIndex = spaceIndex;
+        _currentSpace = new Space(new BridgeSpaceRule());
     }
 
-    private void GivenFinalSpaceWithIndex(int spaceIndex)
+    private void GivenFinalSpace()
     {
-        _currentSpace = new FinalSpace();
-        _currentSpace.SpaceIndex = spaceIndex;
+        _currentSpace = new Space(new FinalSpaceRule());
+    }
+    
+    private void GivenStartingSpace()
+    {
+        _currentSpace = new Space(new StartingSpaceRule());
     }
 
-    private void GivenFinishGameEventSubscription()
+    private void GivenTwoSpacesForward()
     {
-        _endGameFlag = false;
-        GameEvents.OnGameFinish += RaiseEndGameFlag;
-    }
-    
-    private void GivenStartingSpaceWithIndex(int spaceIndex)
-    {
-        _currentSpace = new StartingSpace();
-        _currentSpace.SpaceIndex = spaceIndex;
-    }
-    
-    private void GivenTwoSpacesForwardWithIndex(int spaceIndex)
-    {
-        _currentSpace = new TwoSpacesForwardSpace();
-        _currentSpace.SpaceIndex = spaceIndex;
+        _currentSpace = new Space(new TwoSpacesForwardRule());
     }
 
     private void GivenHotelSpace()
     {
-        _currentSpace = new HotelSpace();
+        _currentSpace = new Space(new HotelSpaceRule());
     }
     
     private void GivenMazeSpace()
     {
-        _currentSpace = new MazeSpace();
+        _currentSpace = new Space(new MazeSpaceRule());
     }
     
     private void GivenPrisonSpace()
     {
-        _currentSpace = new PrisonSpace();
+        _currentSpace = new Space(new PrisonSpaceRule());
     }
 
     private void GivenWellSpace()
     {
-        _currentSpace = new WellSpace();
+        _currentSpace = new Space(new WellSpaceRule());
+    }
+    
+    private void GivenFinishGameEventSubscription()
+    {
+        _endGameFlag = false;
+        GameEvents.OnGameFinish += RaiseEndGameFlag;
     }
 
     private void WhenCurrentSpacePlay()

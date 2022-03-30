@@ -47,7 +47,7 @@ public class TileBuilderShould
 
     private void ThenDesiredSpacesCoincidesWithSpacesCreated()
     {
-        Assert.AreEqual(_builder.DesiredTiles,_spaces.Count);
+        Assert.AreEqual(_builder.DesiredTileAmount,_spaces.Count);
     }
 
     private void ThenCheckForNoRepetitionsOnSpacesIndexes()

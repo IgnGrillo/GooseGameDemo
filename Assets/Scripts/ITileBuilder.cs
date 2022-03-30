@@ -2,6 +2,6 @@ using System.Collections.Generic;
 
 public interface ITileBuilder
 {
-    public int DesiredTiles { get; }
+    public int DesiredTileAmount { get; }
     LinkedList<ISpace> GetBoardSpaces(IBoard board);
 }
