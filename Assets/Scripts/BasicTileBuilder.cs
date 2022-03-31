@@ -53,12 +53,12 @@ public class BasicTileBuilder : ITileBuilder
     {
         for (int i = 0; i < amountToAdd; i++)
         {
-            _spaces.AddLast(GetSpace(rule));
+            _spaces.AddLast(GetInitializedSpace(rule));
             _currentCreationIndex++;
         }
     }
 
-    private Space GetSpace(ISpaceRule rule)
+    private Space GetInitializedSpace(ISpaceRule rule)
     {
         var space = new Space(rule)
         {
