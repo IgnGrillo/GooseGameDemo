@@ -1,41 +1,23 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Serialization;
 
-public class GooseGame : MonoBehaviour
+public class GooseGame
 {
-    private IBoard _board;
-    private List<IPlayer> _players;
     private IPlayer _currrentPlayer;
+    private IPlayer _startingPlayer;
     private LinkedList<IPlayer> _playersTurnOrder;
-    private Action _onGameStart;
-    private Action _onGameFinish;
-    
-    public IBoard Board
+
+    public IBoard Board { get; private set; }
+    public List<IPlayer> Players { get; }
+    public bool IsGameBeingPlayed;
+
+    public GooseGame()
     {
-        get => _board;
-        private set => _board = value;
+        Players = new List<IPlayer>();
+        _playersTurnOrder = new LinkedList<IPlayer>();
     }
 
-    public List<IPlayer> Players
-    {
-        get => _players;
-        private set => _players = value;
-    }
-
-    public Action OnGameStart
-    {
-        get => _onGameStart;
-        set => _onGameStart = value;
-    }
-    
-    public Action OnGameFinish
-    {
-        get => _onGameFinish;
-        set => _onGameFinish = value;
-    }
-    
     public void CreateBoard()
     {
         Board = new Board();
@@ -44,84 +26,75 @@ public class GooseGame : MonoBehaviour
 
     public void AddPlayer(IPlayer player)
     {
-        if (Players == null)
-        {
-            _players = new List<IPlayer>();
-        }
-        if (_playersTurnOrder == null)
-        {
-            _playersTurnOrder = new LinkedList<IPlayer>();
-        }
-        
         Players.Add(player);
         _playersTurnOrder.AddLast(player);
     }
 
-    public void SetStartingPLayer(IPlayer startingPlayer)
+    public void SetStartingPlayer(IPlayer startingPlayer)
     {
-        _currrentPlayer = startingPlayer;
+        _startingPlayer = startingPlayer;
+        _currrentPlayer = _startingPlayer;
     }
     
-    [ContextMenu("Start Board Game %g")]
     public void StartGame()
     {
         SetUpGame();
-        _onGameStart?.Invoke();
-        StartFirstPlayerTurn();
+        CallStartGame();
+        CallNewTurn();
+    }
+
+    public void PlayNextTurn()
+    {
+        if (IsGameBeingPlayed)
+        {
+            MoveToNextPlayer();
+            CallNewTurn();
+        }
     }
     
     public void EndGame()
     {
-        GameEvents.OnGameFinish -= EndGame;
-        UnsubscribeFromPlayerEvents();//Esto tendria que estar subsctripto al ongame finish
-        _onGameFinish?.Invoke();
+        CallEndGame();
+        TearDownGame();
     }
 
     private void SetUpGame()
     {
+        IsGameBeingPlayed = true;
         SetUpPlayersInitialPosition();
-        SubscribeToPlayerEvents();
-        SubscribeToGameFinish();
+    }
+
+    private static void CallStartGame()
+    {
+        GameEvents.StartGame();
+    }
+    
+    private void CallNewTurn()
+    {
+        GameEvents.SetNewTurn(_currrentPlayer);
+    }
+
+    private static void CallEndGame()
+    {
+        GameEvents.EndGame();
+    }
+
+    private void TearDownGame()
+    {
+        IsGameBeingPlayed = false;
     }
 
     private void SetUpPlayersInitialPosition()
     {
-        for (int i = 0; i < _players.Count; i++)
+        foreach (var player in Players)
         {
-            _players[i].CurrentSpace = Board.GetInitialSpace();     
+            player.CurrentSpace = Board.GetInitialSpace();
         }
     }
 
-    private void SubscribeToPlayerEvents()
-    {
-        for (int i = 0; i < _players.Count; i++)
-        {
-            _players[i].OnTurnFinish += GoToNextPlayerTurn;
-        }
-    }
-
-    private void SubscribeToGameFinish()
-    {
-        GameEvents.OnGameFinish += EndGame;
-    }
-    
-    private void UnsubscribeFromPlayerEvents()
-    {
-        for (int i = 0; i < _players.Count; i++)
-        {
-            _players[i].OnTurnFinish -= GoToNextPlayerTurn;
-        }
-    }
-
-    private void StartFirstPlayerTurn()
-    {
-        _currrentPlayer.PlayTurn();
-    }
-
-    private void GoToNextPlayerTurn()
+    private void MoveToNextPlayer()
     {
         _currrentPlayer = GetNextPlayer();
-        _currrentPlayer.PlayTurn();
     }
 
     private IPlayer GetNextPlayer()
