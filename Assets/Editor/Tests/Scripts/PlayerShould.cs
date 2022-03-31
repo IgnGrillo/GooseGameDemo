@@ -15,14 +15,14 @@ public class PlayerShould
     [Test]
     public void TakeASpaceWhenAssigned()
     {
-        GivenABasicSpaceAsCurrentSpace();
+        WhenASpaceIsSet();
         ThenCheckCurrentSpace();
     }
 
     [Test]
     public void TakeABoardWhenAssigned()
     {
-        GivenABoardAsCurrentBoard();
+        WhenABoardIsSet();
         ThenCheckCurrentBoard();
     }
 
@@ -30,7 +30,7 @@ public class PlayerShould
     public void CallTheOnTurnStartWhenPlayingItsTurn()
     {
         GivenFullySetUpBoard();
-        GivenStartingPosition();
+        GivenAStartingPosition();
         GivenTurnStartEventSubscription();
         WhenPlayerPlaysTurn();
         ThenAssertTurnStartFlagStatus();
@@ -41,27 +41,28 @@ public class PlayerShould
     public void CallTheOnTurnFinishWhenPlayingItsTurn()
     {
         GivenFullySetUpBoard();
-        GivenStartingPosition();
+        GivenAStartingPosition();
         GivenTurnFinishEventSubscription();
         WhenPlayerPlaysTurn();
         ThenAssertTurnFinishFlagStatus();
         TearDownOnTurnFinishSubscription();
     }
 
-    [Test][Ignore("Reunion")]
+    [Test]
     public void MoveToAnotherSpaceWhenCalledTo()
     {
         GivenFullySetUpBoard();
-        GivenStartingPosition();
+        GivenAStartingPosition();
         WhenPlayerPlaysTurn();
+        ThenAssertCurrentSpaceIsNotFirstBoardSpace();
     }
 
-    private void GivenABasicSpaceAsCurrentSpace()
+    private void WhenASpaceIsSet()
     {
         _currentPlayer.CurrentSpace = new Space(new BasicSpaceRule());
     }
 
-    private void GivenABoardAsCurrentBoard()
+    private void WhenABoardIsSet()
     {
         _currentPlayer.CurrentBoard = new Board();
     }
@@ -73,7 +74,7 @@ public class PlayerShould
         _currentPlayer.CurrentBoard = board;
     }
 
-    private void GivenStartingPosition()
+    private void GivenAStartingPosition()
     {
         var initialSpace = _currentPlayer.CurrentBoard.GetInitialSpace();
         _currentPlayer.CurrentSpace = initialSpace;
@@ -112,6 +113,11 @@ public class PlayerShould
     private void ThenAssertTurnFinishFlagStatus()
     {
         Assert.IsTrue(_turnFinishFlag);
+    }
+
+    private void ThenAssertCurrentSpaceIsNotFirstBoardSpace()
+    {
+        Assert.AreNotEqual(_currentPlayer.CurrentSpace,_currentPlayer.CurrentBoard.GetInitialSpace());
     }
     
     private void RaiseStartTurnFlag()
