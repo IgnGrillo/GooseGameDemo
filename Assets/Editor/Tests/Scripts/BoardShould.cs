@@ -3,9 +3,6 @@ using NUnit.Framework;
 public class BoardShould
 {
     private IBoard _board;
-    private ISpace _initialSpace;
-    private ISpace _lastSpace;
-    private int _lastSpaceIndex;
 
     [SetUp]
     public void SetUp()
@@ -16,42 +13,34 @@ public class BoardShould
     [Test]
     public void SetUpItsSpaces()
     {
-        GivenABoardSpaceSetUp();
+        WhenBoardSpacesAreSetUp();
         ThenAssertItsSpacesAreNotNull();
     }
 
     [Test]
     public void HaveAnInitialSpace()
     {
-        GivenABoardSpaceSetUp();
+        WhenBoardSpacesAreSetUp();
         ThenAssertInitialSpaceHasIndexZero();
     }
     
     [Test]
     public void HaveALastSpace()
     {
-        GivenABoardSpaceSetUp();
+        WhenBoardSpacesAreSetUp();
         ThenAssertLastSpaceHasCorrectIndex();
     }
 
     [Test]
     public void ReturnSubsequentSpaces()
     {
-        GivenABoardSpaceSetUp();
-        GivenInitialAndLastSpace();
+        WhenBoardSpacesAreSetUp();
         ThenAssertBoardSpacesPosition();
     }
-
-    private void GivenABoardSpaceSetUp()//Cambiar a un When
+    
+    private void WhenBoardSpacesAreSetUp()
     {
         _board.SetUpSpaces(new BasicTileBuilder());
-    }
-
-    private void GivenInitialAndLastSpace()// Que onda esto, creo variables que solo uso una vez
-    {
-        _initialSpace = _board.GetInitialSpace(); 
-        _lastSpace = _board.GetLastSpace();
-        _lastSpaceIndex = _lastSpace.SpaceIndex;
     }
 
     private void ThenAssertItsSpacesAreNotNull()
@@ -66,14 +55,17 @@ public class BoardShould
     
     private void ThenAssertLastSpaceHasCorrectIndex()
     {
-        Assert.AreEqual(_board.Spaces.Count - 1,_board.GetLastSpace().SpaceIndex);
+        Assert.AreEqual(_board.Spaces.Count - 1,_board.Spaces.Last.Value.SpaceIndex);
     }
 
     private void ThenAssertBoardSpacesPosition()
     {
-        Assert.AreEqual(1,_board.GetNextSpace(_initialSpace, 1).SpaceIndex);
-        Assert.AreEqual(_lastSpaceIndex / 4,_board.GetNextSpace(_initialSpace, _lastSpaceIndex / 4).SpaceIndex);
-        Assert.AreEqual( _lastSpaceIndex,_board.GetNextSpace(_initialSpace, _lastSpaceIndex).SpaceIndex);
-        Assert.AreEqual(_lastSpaceIndex, _board.GetNextSpace(_initialSpace, _lastSpaceIndex + 100).SpaceIndex);
+        var initialSpace = _board.GetInitialSpace();
+        var lastSpaceIndex = _board.Spaces.Last.Value.SpaceIndex;
+        
+        Assert.AreEqual(1,_board.GetNextSpace(initialSpace, 1).SpaceIndex);
+        Assert.AreEqual(lastSpaceIndex / 4,_board.GetNextSpace(initialSpace, lastSpaceIndex / 4).SpaceIndex);
+        Assert.AreEqual( lastSpaceIndex,_board.GetNextSpace(initialSpace, lastSpaceIndex).SpaceIndex);
+        Assert.AreEqual(lastSpaceIndex, _board.GetNextSpace(initialSpace, lastSpaceIndex + 100).SpaceIndex);
     }
 }

@@ -2,13 +2,7 @@ using System.Collections.Generic;
 
 public class Board : IBoard
 {
-    private LinkedList<ISpace> _spaces;
-
-    public LinkedList<ISpace> Spaces
-    {
-        get => _spaces;
-        private set => _spaces = value;
-    }
+    public LinkedList<ISpace> Spaces { get; private set; }
 
     public void SetUpSpaces(ITileBuilder tileBuilder)
     {
@@ -20,35 +14,22 @@ public class Board : IBoard
         return Spaces.First.Value;
     }
 
-    public ISpace GetLastSpace()
-    {
-        return Spaces.Last.Value;
-    }
-
-    public ISpace GetNextSpace(ISpace space, int spaceDistance)
+    public ISpace GetNextSpace(ISpace space, int distanceToMove)
     {
         LinkedListNode<ISpace> currentSpace = Spaces.Find(space);
-        int counter = 0;
+        int movedSpaces = 0;
         
-        while (counter < spaceDistance)
+        while (movedSpaces < distanceToMove)
         {
-            counter++;
-            if (!TrySetNextSpace(ref currentSpace)) break;
+            var nextSpace = currentSpace.Next;
+            if (nextSpace == null) break;
+            else
+            {
+                currentSpace = nextSpace;
+                movedSpaces++;
+            }
         }
         
         return currentSpace.Value;
-    }
-
-    private bool TrySetNextSpace(ref LinkedListNode<ISpace> currentSpace)//Revisar esto
-    {
-        if (currentSpace.Next != null)
-        {
-            currentSpace = currentSpace.Next;
-            return true;
-        }
-        else
-        {
-            return false;
-        }
     }
 }
